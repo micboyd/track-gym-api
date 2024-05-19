@@ -1,22 +1,19 @@
 import express from 'express';
-import bodyParser from 'body-parser';
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
+import sequelize from './config/dbConfig.js';
 import authRoutes from './routes/auth.js';
 
-const app = express();
 dotenv.config();
+const app = express();
+const port = 3000;
 
-app.use(bodyParser.json());
+app.use(express.json());
 
-// Connect to MongoDB
-mongoose.connect(process.env.DB_CONNECT);
-mongoose.connection.on('error', console.error.bind(console, 'MongoDB connection error:'));
+app.use('/auth', authRoutes);
 
-app.use('/api/auth', authRoutes);
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`);
+sequelize.sync().then(() => {
+    app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+    });
 });
